@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+import { useHistory } from 'react-router-dom';
 
 import {
   IonModal,
@@ -23,12 +24,18 @@ import { close } from 'ionicons/icons';
 import { Store } from '../../../common/AppStore';
 
 const ContactsModal = ({ isOpen, closeModal }) => {
+  let history = useHistory();
   const { state, fetchContacts } = useContext(Store);
   const { contacts } = state;
 
   useEffect(() => {
     fetchContacts();
   }, []);
+
+  const openChat = (userId) => {
+    closeModal();
+    history.push(`/chats/${userId}`);
+  };
 
   return (
     <IonModal isOpen={isOpen}>
@@ -45,7 +52,7 @@ const ContactsModal = ({ isOpen, closeModal }) => {
       <IonContent fullscreen>
         <IonList>
           {contacts.map(c => (
-            <IonItem key={c.objectId}>
+            <IonItem key={c.objectId} onClick={openChat}>
               <IonAvatar slot="start">
                 <img src={c.picture} alt="avatar"/>
               </IonAvatar>
