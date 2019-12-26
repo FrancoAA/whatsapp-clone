@@ -1,0 +1,7 @@
+{
+  "appId": "B2opqxpHNXzU5KeF3u2pBcgTmomBV8lb7vc46qCd",
+  "masterKey": "DZC9zTY0yBipAyw1gRElcx0UkcYgsixu9P66ZK8P",
+  "appName": "whatsapp-clone",
+  "cloud": "./cloud/main",
+  "databaseURI": "mongodb://127.0.0.1:27017/parse"
+}

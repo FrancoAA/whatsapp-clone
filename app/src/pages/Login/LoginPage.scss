@@ -1,0 +1,25 @@
+.LoginPage {
+  .LoginContainer {
+    display: table;
+    background: var(--ion-color-light, #333);
+    height: 100%;
+    width: 100%;
+
+    form {
+      display: table-cell;
+      vertical-align: middle;
+
+      .TextInput-Container {
+        width: auto;
+        margin: var(--ionic-padding, 16px);
+      }
+
+      .error-message {
+        padding: var(--ionic-padding, 16px);
+        color: var(--ion-color-medium, #000);
+        text-align: center;
+      }
+    }
+  }
+}
+

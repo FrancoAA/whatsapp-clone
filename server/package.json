@@ -1,0 +1,15 @@
+{
+  "name": "whatsapp-clone",
+  "description": "parse-server for whatsapp-clone",
+  "scripts": {
+    "start": "parse-server config.json",
+    "dashboard": "parse-dashboard --dev --appId B2opqxpHNXzU5KeF3u2pBcgTmomBV8lb7vc46qCd --masterKey DZC9zTY0yBipAyw1gRElcx0UkcYgsixu9P66ZK8P --serverURL http://localhost:1337/parse"
+  },
+  "dependencies": {
+    "@share911/meteor-check": "^1.0.7",
+    "moment": "^2.24.0",
+    "parse": "^2.10.0",
+    "parse-dashboard": "^2.0.5",
+    "parse-server": "^3.9.0"
+  }
+}
