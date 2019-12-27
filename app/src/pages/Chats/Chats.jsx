@@ -49,7 +49,7 @@ const Chats = () => {
       <IonContent>
         <IonList>
           {chats.map(chat => (
-            <IonItem key={chat.objectId}>
+            <IonItem key={chat.objectId} routerLink={`/chats/${chat.objectId}`}>
               <IonAvatar slot="start">
                 <img src={chat.lastMessage.sender.picture} alt="chat-picture"/>
               </IonAvatar>

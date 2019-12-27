@@ -1,5 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
 import { format } from "date-fns";
+import React, { useEffect, useState, useRef, useContext } from "react";
+import { useParams } from 'react-router-dom';
+
+import { Store } from '../../common/AppStore';
+
 import {
   IonBackButton,
   IonButtons,
@@ -12,33 +16,28 @@ import {
   IonButton,
   IonIcon
 } from "@ionic/react";
-import { attach } from "ionicons/icons";
+
+import { send } from "ionicons/icons";
+
 import "./Chat.scss";
 
 const Chat = () => {
+  const { state, fetchMessages, sendMessage } = useContext(Store);
+  const { chatId } = useParams();
   const ionContentRef = useRef(null);
-  const [messages, setMessages] = useState([]);
+
+  const { user, messages } = state;
 
   useEffect(() => {
-    const msg = [];
-    for (let index = 0; index < 100; index++) {
-      msg.push({
-        text: `Hello world ${index}`,
-        timestamp: "12:00 PM"
-      });
-    }
-    setMessages(msg);
+    fetchMessages(chatId);
   }, []);
 
-  const sendMessage = e => {
+  const handleSend = e => {
     if (e.keyCode === 13) {
-      const text = e.target.value;
+      const message = e.target.value;
+      sendMessage(chatId, message);
       e.target.value = "";
       ionContentRef.current.scrollToBottom(500);
-      setMessages(prev => [
-        ...prev,
-        { text, timestamp: format(new Date(), "h:mm a") }
-      ]);
     }
   };
 
@@ -55,16 +54,15 @@ const Chat = () => {
 
       <IonContent ref={ionContentRef}>
         <div className="MessageList">
-          {messages &&
-            messages.map((msg, index) => (
-              <div key={index} className="message-wrapper">
+          {messages.map(m => (
+              <div key={m.objectId} className="message-wrapper">
                 <div
                   className={`message ${
-                    index % 2 ? "message-mine" : "message-other"
+                    m.sender.objectId === user.objectId ? "message-mine" : "message-other"
                   }`}
                 >
-                  <div className="message-text">{msg.text}</div>
-                  <span className="message-timestamp">{msg.timestamp}</span>
+                  <div className="message-text">{m.text}</div>
+                  <span className="message-timestamp">{format(new Date(m.createdAt), 'h:mm a')}</span>
                 </div>
               </div>
             ))}
@@ -74,11 +72,11 @@ const Chat = () => {
       <IonFooter>
         <IonToolbar>
           <div className="input-container">
-            <input type="text" onKeyUp={sendMessage} />
+            <input type="text" onKeyUp={handleSend} />
           </div>
           <IonButtons slot="end">
             <IonButton>
-              <IonIcon icon={attach} />
+              <IonIcon icon={send} />
             </IonButton>
           </IonButtons>
         </IonToolbar>

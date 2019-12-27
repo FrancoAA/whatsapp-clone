@@ -1,7 +1,7 @@
 .Chat {
+  background-color: #F6F7FA;
   
   .MessageList {
-    background-color: #F6F7FA;
     padding: 12px 5%;
     height: auto;
 
@@ -44,6 +44,7 @@
 
         .message-text {
           padding: 5px 7px;
+          display: block;
           word-wrap: break-word;
        
           &::after {

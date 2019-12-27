@@ -168,7 +168,7 @@ try {
   for (const [i, m] of messagesData.entries()) {
     const messageInstace = new Message();
     messageInstace.set('text', m.text);
-    messageInstace.set('chatId', chats[i]);
+    messageInstace.set('chatId', chats[i].id);
     messageInstace.set('sender', users[i]);
     await messageInstace.save();
     chats[i].set('lastMessage', messageInstace);

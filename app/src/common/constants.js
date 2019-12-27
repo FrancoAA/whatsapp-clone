@@ -15,5 +15,6 @@ export const FETCH_CHATS = 'FETCH_CHATS';
 export const CREATE_CHATS = 'CREATE_CHAT';
 export const DELETE_CHAT = 'DELETE_CHAT';
 
+export const START_CHAT = 'START_CHAT';
 export const FETCH_MESSAGES = 'FETCH_MESSAGES';
 export const SEND_MESSAGE = 'SEND_MESSAGE';

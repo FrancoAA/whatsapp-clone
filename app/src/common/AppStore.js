@@ -9,8 +9,7 @@ import {
   AUTH_LOGOUT,
   AUTH_FETCH_USER,
   FETCH_CHATS,
-  CREATE_CHATS,
-  DELETE_CHAT,
+  START_CHAT,
   FETCH_MESSAGES,
   SEND_MESSAGE,
   OPEN_CONTACTS_MODAL,
@@ -64,6 +63,15 @@ function reducer(state, { type, payload }) {
     case FETCH_CHATS: {
       return { ...state, chats: payload };
     }
+    case START_CHAT: {
+      return { ...state, chat: payload, chats: [ ...state.chats, payload ]}
+    }
+    case FETCH_MESSAGES: {
+      return { ...state, messages: payload };
+    }
+    case SEND_MESSAGE: {
+      return { ...state, messages: [ ...state.messages, payload]}
+    }
     default:
       return state;
   }
@@ -90,7 +98,7 @@ export function StoreProvider(props) {
   
   async function fetchChats() {
     const { user } = state;
-    console.log('User: ', user);
+
     try {
       const chatsQuery = new Parse.Query('Chats');
       chatsQuery.equalTo('usersList', user.objectId);
@@ -109,12 +117,34 @@ export function StoreProvider(props) {
     }
   }
 
-  async function sendMessage(message) {
+  async function startChat(receiverId) {
     try {
-      const newMessage = Parse.Cloud.run('sendMessage', message);
+      const { user } = state;
+      const Chat = Parse.Object.extend('Chats');
+      const newChat = new Chat();
+      
+      newChat.set('usersList', [user.objectId, receiverId]);
+      await newChat.save();
+      dispatch({
+        type: START_CHAT,
+        payload: newChat.toJSON()
+      });
+    } catch (error) {
+      dispatch({
+        type: SHOW_TOAST,
+        payload: error.message
+      });
+    }
+  }
+
+  async function sendMessage(chatId, message) {
+    try {
+      console.log('sendMessage: ', message);
+      const newMessage = await Parse.Cloud.run('sendMessage', { chatId, message });
+      console.log('sendMessage response: ', newMessage);
       dispatch({
         type: SEND_MESSAGE,
-        payload: newMessage
+        payload: newMessage.toJSON()
       });
     } catch (error) {
       dispatch({
@@ -129,6 +159,8 @@ export function StoreProvider(props) {
 
     try {
       messagesQuery.equalTo('chatId', chatId);
+      messagesQuery.include('sender');
+      
       const messages = await messagesQuery.find();
 
       dispatch({
@@ -159,6 +191,7 @@ export function StoreProvider(props) {
     state,
     dispatch,
     fetchChats,
+    startChat,
     fetchContacts,
     fetchMessages,
     sendMessage,

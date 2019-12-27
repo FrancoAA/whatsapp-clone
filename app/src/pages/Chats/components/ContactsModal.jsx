@@ -52,7 +52,7 @@ const ContactsModal = ({ isOpen, closeModal }) => {
       <IonContent fullscreen>
         <IonList>
           {contacts.map(c => (
-            <IonItem key={c.objectId} onClick={openChat}>
+            <IonItem key={c.objectId} onClick={() => openChat(c.objectId)}>
               <IonAvatar slot="start">
                 <img src={c.picture} alt="avatar"/>
               </IonAvatar>
