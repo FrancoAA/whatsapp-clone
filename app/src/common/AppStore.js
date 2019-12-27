@@ -11,6 +11,7 @@ import {
   FETCH_CHATS,
   FETCH_CHAT,
   OPEN_CHAT,
+  CREATE_CHAT,
   FETCH_MESSAGES,
   SEND_MESSAGE,
   OPEN_CONTACTS_MODAL,
@@ -70,6 +71,9 @@ function reducer(state, { type, payload }) {
     }
     case OPEN_CHAT: {
       return { ...state, chat: payload.chat, messages: payload.messages };
+    }
+    case CREATE_CHAT: {
+      return { ...state, chat: payload.chat, messages: [], chats: [...state.chats, payload.chat]}
     }
     case FETCH_MESSAGES: {
       return { ...state, messages: payload };
@@ -153,10 +157,9 @@ export function StoreProvider(props) {
         await chat.save();
 
         dispatch({
-          type: OPEN_CHAT,
+          type: CREATE_CHAT,
           payload: {
-            chat: chat.toJSON(),
-            messages: []
+            chat: chat.toJSON()
           }
         });
       }

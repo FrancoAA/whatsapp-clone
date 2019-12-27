@@ -153,7 +153,7 @@ console.log('All chats cleared.');
 
 try {
   console.log('Creating chats...');
-  for (const [i, u] of users.entries()) {
+  for (let i = 0, u = users[i]; i < 3; i++, u = users[i]) {
     const chatInstance = new Chat();
     chatInstance.set('usersList', [adminUser.id, u.id]);
     chatInstance.set('avatar', u.get('picture'));
@@ -167,7 +167,8 @@ try {
 
 try {
   console.log('Creating messages...');
-  for (const [i, m] of messagesData.entries()) {
+  // for (const [i, m] of messagesData.entries()) {
+  for (let i = 0, m = messagesData[i]; i < 3; i++, m = messagesData[i]) {
     const messageInstace = new Message();
     messageInstace.set('text', m.text);
     messageInstace.set('chatId', chats[i].id);

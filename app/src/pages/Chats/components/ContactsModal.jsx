@@ -26,15 +26,20 @@ import { Store } from '../../../common/AppStore';
 const ContactsModal = ({ isOpen, closeModal }) => {
   let history = useHistory();
   const { state, fetchContacts, openChat } = useContext(Store);
-  const { contacts } = state;
+  const { chats, contacts } = state;
 
   useEffect(() => {
     fetchContacts();
   }, []);
 
   const handleOpenChat = async (user) => {
+    const chat = chats.find(c => c.usersList.indexOf(user.objectId) >= 0);
+    if (chat) {
+      await openChat({ chatId: chat.objectId });
+    } else {
+      await openChat({ receiver: user });
+    }
     closeModal();
-    await openChat({ receiver: user });
     history.push(`/chats/detail`);
   };
 
