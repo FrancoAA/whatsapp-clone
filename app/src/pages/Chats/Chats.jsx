@@ -21,20 +21,28 @@ import { Store } from "../../common/AppStore";
 
 import "./Chats.scss";
 import ContactsModal from "./components/ContactsModal";
+import { useHistory } from "react-router";
 
 const Chats = () => {
   const {
     state,
     fetchChats,
+    openChat,
     showContactsModal,
     closeContactsModal
   } = useContext(Store);
+  let history = useHistory();
   
   const { chats, showContacts } = state;
 
   useEffect(() => {
     fetchChats();
   }, []);
+
+  const handleOpenChat = async (chatId) => {
+    await openChat({ chatId });
+    history.push('/chats/detail');
+  };
 
   return (
     <IonPage className="Chats">
@@ -49,13 +57,13 @@ const Chats = () => {
       <IonContent>
         <IonList>
           {chats.map(chat => (
-            <IonItem key={chat.objectId} routerLink={`/chats/${chat.objectId}`}>
+            <IonItem key={chat.objectId} onClick={() => handleOpenChat(chat.objectId)}>
               <IonAvatar slot="start">
-                <img src={chat.lastMessage.sender.picture} alt="chat-picture"/>
+                <img src={chat.avatar} alt="chat-picture"/>
               </IonAvatar>
               <IonLabel>
-                <h2>{chat.lastMessage.sender.username}</h2>
-                <p>{chat.lastMessage.text}</p>
+                <h2>{chat.name}</h2>
+                <p>{chat.lastMessage}</p>
               </IonLabel>
             </IonItem>
           ))}

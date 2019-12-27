@@ -55,7 +55,7 @@ const App = () => {
 
                 <IonRouterOutlet>
                   <Route path="/chats" component={Chats} exact={true} />
-                  <Route path="/chats/:chatId" component={Chat} />
+                  <Route path="/chats/detail" component={Chat} />
                   <Route path="/profile" component={Tab2} exact={true} />
                   <Route path="/calls" component={Tab3} />
                   <Route path="/" render={() => <Redirect to="/chats" />} exact={true} />

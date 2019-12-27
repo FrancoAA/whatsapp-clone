@@ -25,16 +25,17 @@ import { Store } from '../../../common/AppStore';
 
 const ContactsModal = ({ isOpen, closeModal }) => {
   let history = useHistory();
-  const { state, fetchContacts } = useContext(Store);
+  const { state, fetchContacts, openChat } = useContext(Store);
   const { contacts } = state;
 
   useEffect(() => {
     fetchContacts();
   }, []);
 
-  const openChat = (userId) => {
+  const handleOpenChat = async (user) => {
     closeModal();
-    history.push(`/chats/${userId}`);
+    await openChat({ receiver: user });
+    history.push(`/chats/detail`);
   };
 
   return (
@@ -52,7 +53,7 @@ const ContactsModal = ({ isOpen, closeModal }) => {
       <IonContent fullscreen>
         <IonList>
           {contacts.map(c => (
-            <IonItem key={c.objectId} onClick={() => openChat(c.objectId)}>
+            <IonItem key={c.objectId} onClick={() => handleOpenChat(c)}>
               <IonAvatar slot="start">
                 <img src={c.picture} alt="avatar"/>
               </IonAvatar>

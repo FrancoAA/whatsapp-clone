@@ -156,6 +156,8 @@ try {
   for (const [i, u] of users.entries()) {
     const chatInstance = new Chat();
     chatInstance.set('usersList', [adminUser.id, u.id]);
+    chatInstance.set('avatar', u.get('picture'));
+    chatInstance.set('name', u.get('username'));
     await chatInstance.save();
     chats.push(chatInstance);
   }
@@ -171,7 +173,7 @@ try {
     messageInstace.set('chatId', chats[i].id);
     messageInstace.set('sender', users[i]);
     await messageInstace.save();
-    chats[i].set('lastMessage', messageInstace);
+    chats[i].set('lastMessage', m.text);
     await chats[i].save();
   } 
 } catch (error) {

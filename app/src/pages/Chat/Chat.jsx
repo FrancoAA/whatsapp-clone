@@ -14,7 +14,8 @@ import {
   IonTitle,
   IonContent,
   IonButton,
-  IonIcon
+  IonIcon,
+  IonAvatar
 } from "@ionic/react";
 
 import { send } from "ionicons/icons";
@@ -22,20 +23,13 @@ import { send } from "ionicons/icons";
 import "./Chat.scss";
 
 const Chat = () => {
-  const { state, fetchMessages, sendMessage } = useContext(Store);
-  const { chatId } = useParams();
   const ionContentRef = useRef(null);
-
-  const { user, messages } = state;
-
-  useEffect(() => {
-    fetchMessages(chatId);
-  }, []);
+  const { state, sendMessage } = useContext(Store);
+  const { user, chat, messages } = state;
 
   const handleSend = e => {
     if (e.keyCode === 13) {
-      const message = e.target.value;
-      sendMessage(chatId, message);
+      sendMessage(chat.objectId, e.target.value);
       e.target.value = "";
       ionContentRef.current.scrollToBottom(500);
     }
@@ -43,12 +37,17 @@ const Chat = () => {
 
   return (
     <IonPage className="Chat">
-      <IonHeader>
+      <IonHeader collapse="condense">
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton />
+          <IonButtons collapse="true" slot="start">
+            <IonBackButton text="" />
           </IonButtons>
-          <IonTitle>Chat</IonTitle>
+          <IonAvatar style={{ height: '36px', width: '36px' }}>
+            {chat && <img src={chat.avatar} alt="avatar" />}
+          </IonAvatar>
+          <IonTitle>
+            {chat && chat.name}
+          </IonTitle>
         </IonToolbar>
       </IonHeader>
 

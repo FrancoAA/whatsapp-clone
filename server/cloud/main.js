@@ -33,7 +33,7 @@ Parse.Cloud.define('sendMessage', async(request) => {
     await newMessage.save();
 
     // Update last message info
-    chat.set('lastMessage', newMessage);
+    chat.set('lastMessage', message);
     await chat.save();
 
     return newMessage;

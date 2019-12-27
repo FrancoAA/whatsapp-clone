@@ -9,7 +9,8 @@ import {
   AUTH_LOGOUT,
   AUTH_FETCH_USER,
   FETCH_CHATS,
-  START_CHAT,
+  FETCH_CHAT,
+  OPEN_CHAT,
   FETCH_MESSAGES,
   SEND_MESSAGE,
   OPEN_CONTACTS_MODAL,
@@ -28,6 +29,7 @@ export const initialState = {
   chat: null,
   chats: [],
   user: null,
+  otherUser: null,
   error: null
 };
 
@@ -63,8 +65,11 @@ function reducer(state, { type, payload }) {
     case FETCH_CHATS: {
       return { ...state, chats: payload };
     }
-    case START_CHAT: {
-      return { ...state, chat: payload, chats: [ ...state.chats, payload ]}
+    case FETCH_CHAT: {
+      return { ...state, chat: payload };
+    }
+    case OPEN_CHAT: {
+      return { ...state, chat: payload.chat, messages: payload.messages };
     }
     case FETCH_MESSAGES: {
       return { ...state, messages: payload };
@@ -83,7 +88,6 @@ export function StoreProvider(props) {
   async function fetchContacts() {
     try {
       const contacts = await Parse.Cloud.run('getContacts');
-      console.log('getContacts: ', contacts);
       dispatch({
         type: FETCH_CONTACTS,
         payload: contacts.map(c => c.toJSON())
@@ -102,7 +106,6 @@ export function StoreProvider(props) {
     try {
       const chatsQuery = new Parse.Query('Chats');
       chatsQuery.equalTo('usersList', user.objectId);
-      chatsQuery.include('lastMessage.sender');
       const chats = await chatsQuery.find();
 
       dispatch({
@@ -117,19 +120,48 @@ export function StoreProvider(props) {
     }
   }
 
-  async function startChat(receiverId) {
+  async function openChat({ chatId, receiver }) {
+    let Chat, chat, messages, chatQuery, messagesQuery;
+
+    console.log('ChatId: ', chatId, 'receiver: ', receiver);
+
+    Chat = Parse.Object.extend('Chats');
+
     try {
       const { user } = state;
-      const Chat = Parse.Object.extend('Chats');
-      const newChat = new Chat();
-      
-      newChat.set('usersList', [user.objectId, receiverId]);
-      await newChat.save();
-      dispatch({
-        type: START_CHAT,
-        payload: newChat.toJSON()
-      });
+      chatQuery = new Parse.Query('Chats');
+      messagesQuery = new Parse.Query('Messages');
+
+      // Open an existing conversation, fetch the chat info and it's messages
+      if (chatId) {
+        chat = await chatQuery.get(chatId);
+        messagesQuery.equalTo('chatId', chatId);
+        messages = await messagesQuery.find();
+        dispatch({
+          type: OPEN_CHAT,
+          payload: {
+            chat: chat.toJSON(),
+            messages: messages.map(m => m.toJSON())
+          }
+        });
+      } else {
+        chat = new Chat();
+        chat.set('usersList', [user.objectId, receiver.objectId]);
+        chat.set('name', receiver.username);
+        chat.set('avatar', receiver.picture);
+
+        await chat.save();
+
+        dispatch({
+          type: OPEN_CHAT,
+          payload: {
+            chat: chat.toJSON(),
+            messages: []
+          }
+        });
+      }
     } catch (error) {
+      console.log(error.message);
       dispatch({
         type: SHOW_TOAST,
         payload: error.message
@@ -138,13 +170,19 @@ export function StoreProvider(props) {
   }
 
   async function sendMessage(chatId, message) {
+    const { chats } = state;
     try {
-      console.log('sendMessage: ', message);
       const newMessage = await Parse.Cloud.run('sendMessage', { chatId, message });
-      console.log('sendMessage response: ', newMessage);
       dispatch({
         type: SEND_MESSAGE,
         payload: newMessage.toJSON()
+      });
+
+      const index = chats.findIndex(c => c.objectId === chatId);
+      chats[index].lastMessage = message;
+      dispatch({
+        type: FETCH_CHATS,
+        payload: [ ...chats ]
       });
     } catch (error) {
       dispatch({
@@ -155,19 +193,28 @@ export function StoreProvider(props) {
   }
 
   async function fetchMessages(chatId) {
+    console.log('fetchMessages called', chatId);
+
     const messagesQuery = new Parse.Query('Messages');
+    const chatQuery = new Parse.Query('Chats');
 
     try {
       messagesQuery.equalTo('chatId', chatId);
       messagesQuery.include('sender');
-      
+      //
+      const chat = await chatQuery.get(chatId);
+      dispatch({
+        type: FETCH_CHAT,
+        payload: chat.toJSON()
+      });
+      //
       const messages = await messagesQuery.find();
-
       dispatch({
         type: FETCH_MESSAGES,
         payload: messages.map(m => m.toJSON())
       });
     } catch (error) {
+      console.log(error);
       dispatch({
         type: SHOW_TOAST,
         payload: error.message
@@ -191,7 +238,7 @@ export function StoreProvider(props) {
     state,
     dispatch,
     fetchChats,
-    startChat,
+    openChat,
     fetchContacts,
     fetchMessages,
     sendMessage,
